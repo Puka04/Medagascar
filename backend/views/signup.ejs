@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medagascar</title>
+</head>
+<body>
+    <form method="post" action="/signup" class="form-control">
+        <label>Name</label>
+        <input type="text" name="name"> <br><br>
+        <label>Date Of Birth</label>
+        <input type="date" name="dob"> <br><br>
+        <label>Gender</label> <br>
+        <label for="">Male</label><input type="radio" name="gender" value="Male" >
+        <label for="">Female</label><input type="radio" name="gender" value="Female">
+        <label for="">Transgender</label><input type="radio" name="gender" value="Transgender">
+        <label for="">Other</label><input type="radio" name="gender" value="Other"> <br><br>
+        <label>Email</label>
+        <input type="email" name="email"> <br><br>
+        <label>Password</label>
+        <input type="password" name="password"> <br><br>
+        <input type="submit" name="submit" value="Submit">
+    </form>
+    <br><br>
+    <a href="/signin">Signin</a>
+</body>
+</html>
