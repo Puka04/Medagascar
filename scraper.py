@@ -1,12 +1,28 @@
 import requests
 from bs4 import BeautifulSoup
 
-drugName = 'glucovance'
+drugName = 'TYMLOS (ABALOPARATIDE INJECTION)'
+drug=""
 
-URL = 'https://www.rxlist.com/'+drugName+'-drug.htm'
+def getDrugLink(drugName):
+        print(drugName)
+        x = drugName.find("(")
+        dname = slice(x)
+        drest = slice(x+1, -1)
+        if(len(drugName[dname]) < len(drugName[drest])):
+            return (drugName[dname])
+        else:
+            return (drugName[drest])
+
+
+drug = getDrugLink(drugName).strip()
+
+URL = 'https://www.rxlist.com/'+drug+'-drug.htm'
+print(URL)
 
 headers = {
     "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'}
+
 
 
 def scrape():
