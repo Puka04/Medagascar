@@ -1,29 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medagascar</title>
-</head>
-<body>
-    <form method="post" action="/signup" class="form-control">
-        <label>Name</label>
-        <input type="text" name="name"> <br><br>
-        <label>Date Of Birth</label>
-        <input type="date" name="dob"> <br><br>
-        <label>Gender</label> <br>
-        <label for="">Male</label><input type="radio" name="gender" value="Male" >
-        <label for="">Female</label><input type="radio" name="gender" value="Female">
-        <label for="">Transgender</label><input type="radio" name="gender" value="Transgender">
-        <label for="">Other</label><input type="radio" name="gender" value="Other"> <br><br>
-        <label>Email</label>
-        <input type="email" name="email"> <br><br>
-        <label>Password</label>
-        <input type="password" name="password"> <br><br>
-        <input type="submit" name="submit" value="Submit">
-    </form>
-    <br><br>
-    <a href="/signin">Signin</a>
-</body>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Medagascar</title>
+        <link rel="stylesheet" href="css/Register.css">
+    </head>
+
+    <body>
+
+        <section>
+
+            <div class="imgBx">
+                <img
+                    src="https://images.unsplash.com/photo-1675790931692-d36049a5c7f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8">
+            </div>
+
+            <div class="contentBx">
+
+                <div class="formBx">
+
+                    <h2>REGISTER</h2>
+
+                    <form method="post" action="/signup">
+
+                        <div class="inputBx">
+                            <span>Name : </span>
+                            <input type="text" name="name"> <br><br>
+                        </div>
+
+                        <div class="inputBx">
+                            <span>Date of Birth : </span>
+                            <input type="date" name="dob"><br><br>
+                        </div>
+
+                        <div class="inputBx">
+                            <span>Gender : </span>
+                            <input type="Radio" name="gender" value="Male">Male
+                            <input type="Radio" name="gender" value="Female">Female
+                            <input type="Radio" name="gender" value="Transgender">Transgender
+                            <input type="Radio" name="gender" value="Other">Other<br><br>
+                        </div>
+
+                        <div class="inputBx">
+                            <span>Email : </span>
+                            <input type="text" name="email"><br><br>
+                        </div>
+
+                        <div class="inputBx">
+                            <span>Password : </span>
+                            <input type="password" name="password"><br><br><br>
+                        </div>
+
+                        <div class="inputBx">
+                            <input type="submit" id="" value="Submit">
+                            <input type="submit" id="" value="Cancel">
+                        </div>
+
+                        <div class="inputBx">
+                            <p>Have an account? <a href="/signin">Sign in</a></p>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </section>
+
+    </body>
+
 </html>

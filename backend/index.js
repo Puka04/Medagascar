@@ -3,9 +3,23 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
 const _ = require("lodash");
+const cookieParser = require("cookie-parser");
+var session = require("express-session");
+var morgan = require("morgan");
+var multer = require("multer");
+var path = require("path");
+const {
+  RegisterUser,
+  Allergy,
+  FamilyHistory,
+  Upload,
+  Medicine,
+} = require("./model/db");
 
-const db_Reg = require("./model/db_reg");
 const app = express();
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/upload"));
+app.use("/upload", express.static("upload"));
 
 mongoose
   .connect("mongodb://localhost:27017/userReg")
@@ -16,44 +30,237 @@ mongoose
     console.log("Error in establishing Database");
   });
 
-app.set("view engine", "ejs");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(cookieParser());
+app.use(morgan("dev"));
 
-app.get("/", function (req, res) {
-  res.render("signup");
+app.use(
+  session({
+    key: "user_sid",
+    secret: "somerandomstuffs",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 600000,
+    },
+  })
+);
+
+app.use((req, res, next) => {
+  if (req.cookies.user_sid && !req.session.user) {
+    res.clearCookie("user_sid");
+  }
+  next();
 });
 
-app.get("/signin", function (req, res) {
-  res.render("signin");
+var sessionChecker = (req, res, next) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.redirect("/profile");
+  } else {
+    next();
+  }
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "upload");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+    );
+  },
 });
 
-app.post("/signin", async (req, res) => {
-  try {
-    const check = await db_Reg.findOne({ email: req.body.email });
-    if (check.password === req.body.password) {
-      res.send("You have logged in successfully");
-    } else {
-      res.send("Password is incorrect");
+const upload = multer({
+  storage: storage,
+});
+
+//const upload_multer = multer({ storage: Storage });
+
+// const imageData = Upload.find({});
+
+app.get("/", sessionChecker, function (req, res) {
+  res.redirect("/signup");
+});
+
+var id = {};
+
+app
+  .route("/signin")
+  .get(sessionChecker, (req, res) => {
+    res.render("signin");
+  })
+  .post(async (req, res) => {
+    try {
+      const check = await RegisterUser.findOne({ email: req.body.email });
+      if (check.password === req.body.password) {
+        console.log("Password check completed");
+        id = { userId: check._id };
+        req.session.user = req.body;
+        res.redirect("/profile");
+      } else {
+        res.send("Password is incorrect");
+      }
+    } catch (error) {
+      console.log(error);
+      res.send("Wrong Details");
     }
-  } catch (error) {
-    console.log(error);
-    res.send("Wrong Details");
+  });
+
+app
+  .route("/signup")
+  .get(sessionChecker, (req, res) => {
+    res.render("signup");
+  })
+  .post(async (req, res) => {
+    const data = new RegisterUser(req.body);
+    console.log(data);
+    data.save((err, docs) => {
+      if (err) {
+        res.redirect("/signup");
+      } else {
+        console.log(docs);
+        req.session.user = docs;
+        res.redirect("/profile");
+      }
+    });
+  });
+
+app.route("/prescription").get((req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.render("prescriptions");
+  } else {
+    res.redirect("/signin");
   }
 });
 
-app.get("/signup", function (req, res) {
-  res.redirect("/");
+app.route("/upload").get((req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.render("upload");
+  } else {
+    res.redirect("/signin");
+  }
 });
 
-app.post("/signup", async (req, res) => {
-  const data = new db_Reg(req.body);
-  console.log(data);
-  await data.save();
-  res.send("Saved Data");
+app
+  .route("/allergies")
+  .get((req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+      res.render("allergies");
+    } else {
+      res.redirect("/signin");
+    }
+  })
+  .post(async (req, res) => {
+    var allergyData = Object.assign(id, req.body);
+    console.log(allergyData);
+    const data = new Allergy(allergyData);
+    console.log(data);
+    await data.save();
+    res.send("Allergies updated");
+  });
+
+app
+  .route("/familyHistory")
+  .get((req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+      res.render("familyHistory");
+    } else {
+      res.redirect("/signin");
+    }
+  })
+  .post(async (req, res) => {
+    console.log(id);
+    var familyData = Object.assign(id, req.body);
+    console.log(familyData);
+    const data = new FamilyHistory(familyData);
+    console.log(data);
+    await data.save();
+    res.send("Family History updated");
+  });
+
+app
+  .route("/medicine")
+  .get((req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+      console.log("Connected to react");
+    } else {
+      res.redirect("/signin");
+    }
+  })
+  .post(async (req, res) => {
+    console.log(id);
+    var medicineData = Object.assign(id, req.body);
+    console.log(medicineData);
+    const data = new Medicine(medicineData);
+    console.log(data);
+    await data.save();
+    res.send("Medicine updated");
+  });
+
+app
+  .route("/uploadFiles")
+  .get((req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+      Upload.find({}, (err, data) => {
+        if (err) throw err;
+        res.render("imageUpload", {
+          records: data,
+        });
+      });
+    } else {
+      res.redirect("/signin");
+    }
+  })
+  .post(upload.single("file"), async (req, res) => {
+    var imageDetails = Object.assign(
+      id,
+      {
+        imageDetails: req.file.filename,
+      },
+      { date: req.body.date }
+    );
+    console.log(imageDetails);
+
+    const data = new Upload(imageDetails);
+    await data.save();
+    if (req.session.user && req.cookies.user_sid) {
+      Upload.find({}, (err, data) => {
+        if (err) throw err;
+        res.render("imageUpload", {
+          records: data,
+        });
+      });
+    } else {
+      res.redirect("/signin");
+    }
+  });
+
+app.get("/profile", (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.render("profile");
+  } else {
+    console.log("Error in loading profile");
+    res.redirect("/signin");
+  }
 });
 
-app.listen(3000, function () {
+app.get("/logout", (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.clearCookie("user_sid");
+    res.redirect("/");
+  } else {
+    res.redirect("/signin");
+  }
+});
+
+app.use(function (req, res, next) {
+  res.status(404).send("Sorry can't find that!");
+});
+
+app.listen(5000, function () {
   console.log("Server started on port 3000");
 });
