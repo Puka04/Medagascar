@@ -1,4 +1,4 @@
-    #Medagascar
+# Medagascar
 
 View it live : https://medagascar.onrender.com
 
